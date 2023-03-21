@@ -1,0 +1,275 @@
+﻿@page "/validator"
+@using Emailvalidator.Data
+@using System.Text
+<style>
+    * {
+        box-sizing: border-box;
+    }
+
+    /* Create two equal columns that floats next to each other */
+    .column {
+        float: left;
+        width: 50%;
+        padding: 10px;
+        height: 350px;
+    }
+
+    /* Clear floats after the columns */
+    .row:after {
+        content: "";
+        display: table;
+        clear: both;
+    }
+
+    .myself .property {
+        width: 25%;
+        display: inline-block;
+        box-sizing: border-box;
+        text-align: right;
+    }
+
+    .myself .value {
+        text-align: left;
+        padding-left: 10px;
+        width: 70%;
+        display: inline-block;
+        box-sizing: border-box;
+    }
+
+
+    .container {
+        position: relative;
+    }
+
+    .center {
+        position: absolute;
+        left: 50%;
+    }
+
+    .columnC {
+        float: left;
+        width: 100%;
+        padding: 10px;
+        height: 150px;
+    }
+
+    .myself .valueC {
+        text-align: left;
+        padding-left: 10px;
+        width: 70%;
+        display: inline-block;
+        box-sizing: border-box;
+    }
+
+    .myself .propertyC {
+        width: 25%;
+        display: inline-block;
+        box-sizing: border-box;
+        text-align: right;
+    }
+
+    .form-control {
+        width: 100%;
+    }
+
+    .button1 {
+        width: 300px;
+    }
+
+</style>
+
+<div class="row ">
+    <div class="columnC myself">
+        <div class="row ">
+            <div class="center">
+                <h3>USER Information</h3>
+            </div>
+        </div>
+        <br /><br />
+
+        <div class="row ">
+            <div class="col-sm-3">
+                <label for="explicit-label-name">UserId </label>
+                <select class="form-control" @onchange="@showUser">
+                    <option value="Any">@userManager.Any</option>
+                    @foreach(var u in users)
+                    {
+                        <option value="@u.Id">@u.Id</option>
+                    }
+
+                </select>
+                    
+
+            </div>
+
+            <div class="col-sm-3">
+                <label for="explicit-label-name">UserEmail </label>
+                <select class="form-control" @onchange="@showUser">
+                    <option value="Any">@userManager.Any</option>
+                    @foreach(var u in users)
+                    {
+                        <option value="@u.Email">@u.Email</option>
+                    }
+
+                </select>
+                    
+
+            </div>
+            <div class="col-sm-3">
+                <label for="explicit-label-name"> </label>
+                <button class="btn btn-primary form-control" @onclick="@FindUser">FindUser</button>
+                
+            </div>
+
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="columnC myself">
+        <div class="row ">
+            <div class="center">
+                <h3>User</h3>
+            </div>
+        </div>
+        <br /><br />
+        <select class="form-control" @onchange="@fillForm">
+            @foreach (var u in users)
+            {
+                <option value=@u.Id>@u.Id, @u.Email, @u.FirstName, @u.LastName, @u.UserName </option>
+            }
+
+        </select>
+    </div>
+</div>
+
+<div>
+    <div class="columnC">
+        <div class="row">
+            <div class="center">
+                <h3>Register</h3>
+            </div>
+
+        </div>
+        <br />
+        <label>Userid:</label><input class="form-control" type="text" placeholder="userid" @bind-value="newid" />
+        <label>Email:</label><input class="form-control" type="text" placeholder="email" @bind-value="newEmail" />
+        <label>First Name:</label><input class="form-control" type="text" placeholder="fname" @bind-value="fname" />
+        <label>Last Name:</label><input class="form-control" type="text" placeholder="lname" @bind-value="lname" />
+        <label>user name:</label><input class="form-control" type="text" placeholder="uname" @bind-value="newUser" />
+    </div>
+
+    
+
+</div>
+<br /><br />
+@*
+<div>
+    <label> Users :</label>
+    <select @onchange="ShowEmail">
+        <option>Select an Email</option>
+        @foreach(var u in users)
+        {
+            <option value="@u.Email">@u.Id _ @u.Email</option>
+
+        }
+    </select>
+    <p> Selected Email: @selectedEmail</p>
+    <button @onclick="ValidateEmail">Validate</button>
+    <p>Message: @message</p>
+
+</div>
+*@
+
+@code {
+    static string newid;
+    string fname;
+    string lname;
+    string newEmail;
+    string newUser;
+    string newPass;
+    string registerCode;
+
+    userManager um = new userManager();
+    List<User> users = userManager.GetUsers();
+    
+    string selectedEmail;
+    string message;
+
+    User user;
+    int i;
+
+    private void showUser(ChangeEventArgs e)
+    {
+        string selec_email = e.Value.ToString();
+
+
+    }
+
+    private void FindUser()
+    {
+        newid = "";
+        fname = "";
+        lname = "";
+        newEmail = "";
+        newUser = "";
+
+        if (newid == null)
+        {
+            newid = userManager.Any;
+        }
+        if (newEmail == null)
+        {
+            newEmail = userManager.Any;
+        }
+
+        users = userManager.finduser(newid, newEmail);
+    }
+
+
+
+    private void ShowEmail(ChangeEventArgs e)
+    {
+        selectedEmail = e.Value.ToString();
+
+    }
+
+    /*
+    * validate email 
+     */
+
+    private void ValidateEmail()
+    {
+        if (IsValidEmail(selectedEmail))
+        {
+            message = "Valid Email";
+        }
+        else
+        {
+            message = "Invalid Email"; 
+        }
+    }
+
+    /*
+    * method for checking if the email contain @ sign
+    * @param - user email
+    * @return - email contain @
+    */
+    private bool IsValidEmail(string email)
+    {
+        return email.Contains("@");
+    }
+
+    private void fillForm(ChangeEventArgs e)
+    {
+        newid = e.Value.ToString();
+        user = userManager.finduserbyid(newid);
+        newEmail = user.Email;
+        fname = user.FirstName;
+        lname = user.LastName;
+        newUser = user.UserName;
+        
+
+    }
+
+
+}

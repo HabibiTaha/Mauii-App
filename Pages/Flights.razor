@@ -1,0 +1,175 @@
+﻿@page "/flights"
+@using Emailvalidator.Data;
+@using System.Text;
+@using System.Collections.Generic;
+
+<style>
+	label {
+		display: inline-block;
+		text-align: right;
+	}
+</style>
+<form class="container">
+	<div class="row">
+		<div class="col-md-6">
+			<h4 class="text-center">Flights</h4>
+			@if (FlightManager.SearchedFlights.Count > 0)
+			{
+				@for (var i = 0; i < FlightManager.SearchedFlights.Count; i++)
+				{
+					<label> @FlightManager.SearchedFlights[i].AirlineCode</label>
+					<label> @FlightManager.SearchedFlights[i].AirlineName</label>
+					<label> @FlightManager.SearchedFlights[i].From</label>
+					<label> @FlightManager.SearchedFlights[i].To</label>
+					<label> @FlightManager.SearchedFlights[i].DayOfWeek</label>
+					<label> @FlightManager.SearchedFlights[i].Time.ToString("HH:mm")</label>
+					<label> Available Seats: @FlightManager.SearchedFlights[i].Seats</label>
+					<label> $ @FlightManager.SearchedFlights[i].Rate</label>
+				}
+			}
+			else
+			{
+				<label> No flights found.</label>
+			}
+		</div>
+		<div class="col-md-6 mb-lg-4">
+			<h4 class="text-center">Reserve</h4>
+			<div class="form-group row mb-md-4">
+				@{
+					string flight="";
+					string airlineName="";
+					string dayofweek="";
+					string time="";
+					string cost="";
+
+					for(var i=0; i<FlightManager.SearchedFlights.Count;i++)
+					{
+						flight = FlightManager.SearchedFlights[i].AirlineCode;
+						airlineName = FlightManager.SearchedFlights[i].AirlineName;
+						dayofweek = FlightManager.SearchedFlights[i].DayOfWeek;
+						time = FlightManager.SearchedFlights[i].Time.ToString("HH:mm");
+						cost = FlightManager.SearchedFlights[i].Rate.ToString();
+					}
+				}
+				<div class="col-md-3  mb-md-2">
+					<label>Flight: </label>
+				</div>
+				<div class="col-md-9  mb-md-2">
+					<input type="text" @bind="@flight" disabled="disabled"/>
+				</div>
+				<div class="col-md-3  mb-md-2">
+					<label>Airline: </label>
+				</div>
+				<div class="col-md-9  mb-md-2">
+					<input type="text" @bind="@airlineName" disabled="disabled" />
+				</div>
+				<div class="col-md-3  mb-md-2">
+					<label>Day: </label>
+				</div>
+				<div class="col-md-9  mb-md-2">
+					<input type="text" @bind="@dayofweek" disabled="disabled" />
+				</div>
+				<div class="col-md-3  mb-md-2">
+					<label>Time: </label>
+				</div>
+				<div class="col-md-9  mb-md-2">
+					<input type="text" @bind="@time" disabled="disabled" />
+				</div>
+				<div class="col-md-3  mb-md-2">
+					<label>Cost: </label>
+				</div>
+				<div class="col-md-9  mb-md-2">
+					<input type="text" @bind="@cost" disabled="disabled" />
+				</div>
+				<div class="col-md-3  mb-md-2">
+					<label>Name: </label>
+				</div>
+				<div class="col-md-9  mb-md-2">
+					<input type="text"/>
+				</div>
+				<div class="col-md-3  mb-md-2">
+					<label>Citizenship: </label>
+				</div>
+				<div class="col-md-9  mb-md-2">
+					<input type="text"/>
+				</div>
+				
+				<div class="col-md-9 text-center mb-md-2">
+					<button class="btn btn-primary text-center" @onclick="@Click"> Reserve </button>
+					<label>"@f"</label>
+				</div>
+			</div>
+			
+		</div>
+	</div>
+	<div class="row mb-md-4">
+		<div class="col-md-3">
+		</div>
+		<div class="col-md-9">
+			<h4 class="text-center mb-md-3">Flight Finder</h4>
+			<div class="form-group row mb-md-4">
+				<div class="col-md-3  mb-md-2">
+					<label>From: </label>
+				</div>
+				<div class="col-md-9  mb-md-2">
+					<select @bind="airportOrigin" class="form-control">
+						<option value="@FlightManager.Any">Any</option>
+						@foreach (var i in FlightManager.AirportsList)
+						{
+							<option value="@i.AirportCode">@i.AirportCode</option>
+						}
+					</select>
+				</div>
+				<div class="col-md-3  mb-md-2">
+					<label>To: </label>
+				</div>
+				<div class="col-md-9 mb-md-2">
+					<select @bind="airportDestination" class="form-control">
+						<option value="@FlightManager.Any">Any</option>
+						@foreach (var i in FlightManager.AirportsList)
+						{
+							<option value="@i.AirportCode">@i.AirportCode</option>
+						}
+					</select>
+				</div>
+				<div class="col-md-3 mb-md-2">
+					<label>Day: </label>
+				</div>
+				<div class="col-md-9 mb-md-2">
+					<select @bind="day" class="form-control">
+						<option value="@FlightManager.Any">Any</option>
+						@for (int i = 0; i < FlightManager.days.Count; i++)
+						{
+							<option value="@FlightManager.days[i]">@FlightManager.days[i]</option>
+						}
+					</select>
+				</div>
+				<div class="col-md-9 text-center mb-md-2">
+					<button class="btn btn-primary" @onclick="@FindFlights">Find Flights</button>
+				</div>
+			</div>
+
+		</div>
+	</div>
+</form>
+
+@code{
+
+	FlightManager fm = new FlightManager();
+	string airportOrigin;
+	string airportDestination;
+	string day;
+
+	string f;
+	private void FindFlights()
+	{
+		FlightManager.ClearList();
+		FlightManager.FindFlights(airportOrigin, airportDestination, day);
+	}
+
+	private void Click()
+	{
+		f = ReservationManager.GenerateCode();
+	}
+
+}
