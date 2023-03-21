@@ -1,0 +1,7 @@
+﻿1,test@sait.ca,Daniel,Ayano,dayano,stuv123j#
+2,aaa@shaw.ca,Mohammad,Yasin,MYasin,ghtw#12
+3,bbb@shaw.com,Jesse,Taylor,Jtylor,sdhje45@
+4,ddd@gmail.com,Seth,Dijkstra,sdijkstra,dkseu123
+5,eee.com,Hyun,Lee,hlee,45dj3j
+6,fintech.ca,Curtis,Narong,cnarong,djkdfe23#
+7,reemo@gmail.ca,James,Sudbey,jsudbey,456djf@
